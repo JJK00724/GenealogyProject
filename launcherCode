@@ -1,1 +1,21 @@
-/** Code For Launcher Portion Here **/
+package softwaredevfamtree;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class firsttest {
+
+	public static void main(String[] args) {
+		
+		JFrame f = new JFrame();
+		f.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+		}	
+	);
+		f.setContentPane(new Container());
+		f.setSize(400,400);
+		f.setVisible(true);
+}
+}
