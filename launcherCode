@@ -1,21 +1,19 @@
-package softwaredevfamtree;
-import java.awt.*;
-import java.awt.event.*;
+package famTree;
+
 import javax.swing.*;
 
-public class firsttest {
+public class launcher {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Family Tree Viewer");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-	public static void main(String[] args) {
-		
-		JFrame f = new JFrame();
-		f.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		}	
-	);
-		f.setContentPane(new Container());
-		f.setSize(400,400);
-		f.setVisible(true);
-}
+            // Add our custom drawing panel
+            frame.add(new familytreeviewer());
+
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
 }
