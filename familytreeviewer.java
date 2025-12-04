@@ -10,15 +10,26 @@ public class familytreeviewer extends JPanel {
 
     static class PersonNode {
         String name;
-        List<PersonNode> parents = new ArrayList<>();
-        int x, y; // world coordinates (not screen)
+        String DOB;
+        String DOD;   // null or "" = alive
+        int age;      // age if alive, age at death if dead
 
-        PersonNode(String name) {
+        List<PersonNode> parents = new ArrayList<>();
+        int x, y; // world coordinates
+
+        PersonNode(String name, String DOB, String DOD, int age) {
             this.name = name;
+            this.DOB = DOB;
+            this.DOD = DOD;
+            this.age = age;
         }
 
         void addParent(PersonNode parent) {
             parents.add(parent);
+        }
+
+        Rectangle getBounds() {
+            return new Rectangle(x, y, 80, 40);
         }
     }
 
@@ -28,28 +39,29 @@ public class familytreeviewer extends JPanel {
     private boolean dragging = false;
 
     public familytreeviewer() {
-        // --- People ---
-        PersonNode child = new PersonNode("Alex");
 
-        // Parents
-        PersonNode mom = new PersonNode("Mary");
-        PersonNode dad = new PersonNode("John");
+        PersonNode child = new PersonNode("Alex", "2005-03-10", "", 19);
+
+        PersonNode mom = new PersonNode("Mary", "1980-08-21", "", 44);
+        PersonNode dad = new PersonNode("John", "1978-01-14", "", 46);
+
+        PersonNode grandmaM = new PersonNode("Evelyn", "1952-06-01", "2019-12-10", 67);
+        PersonNode grandpaM = new PersonNode("Robert", "1950-02-18", "", 74);
+
+        PersonNode grandmaD = new PersonNode("Susan", "1956-11-30", "", 68);
+        PersonNode grandpaD = new PersonNode("Charles", "1953-05-22", "2008-04-02", 55);
+
+        // Parent relationships
         child.addParent(mom);
         child.addParent(dad);
 
-        // Maternal grandparents
-        PersonNode grandmaM = new PersonNode("Evelyn");
-        PersonNode grandpaM = new PersonNode("Robert");
         mom.addParent(grandmaM);
         mom.addParent(grandpaM);
 
-        // Paternal grandparents
-        PersonNode grandmaD = new PersonNode("Susan");
-        PersonNode grandpaD = new PersonNode("Charles");
         dad.addParent(grandmaD);
         dad.addParent(grandpaD);
 
-        // Add all to list
+        // Add all
         nodes.add(child);
         nodes.add(mom);
         nodes.add(dad);
@@ -58,7 +70,7 @@ public class familytreeviewer extends JPanel {
         nodes.add(grandmaD);
         nodes.add(grandpaD);
 
-        // --- Coordinates (relative positions) ---
+        // Positions
         child.x = 0; child.y = 0;
 
         mom.x = -100; mom.y = -100;
@@ -73,7 +85,7 @@ public class familytreeviewer extends JPanel {
         setPreferredSize(new Dimension(800, 600));
         setBackground(Color.WHITE);
 
-        // --- Mouse controls for panning ---
+        //Mouse controls
         MouseAdapter mouseHandler = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -99,11 +111,47 @@ public class familytreeviewer extends JPanel {
                     repaint();
                 }
             }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                handleClick(e.getX(), e.getY());
+            }
         };
+
         addMouseListener(mouseHandler);
         addMouseMotionListener(mouseHandler);
     }
 
+   
+    // Clicks
+    private void handleClick(int mouseX, int mouseY) {
+
+        // Convert screen → world coordinates
+        int worldX = mouseX - (getWidth() / 2 + offsetX);
+        int worldY = mouseY - (getHeight() / 2 + offsetY);
+
+        for (PersonNode p : nodes) {
+            if (p.getBounds().contains(worldX, worldY)) {
+
+                String info = 
+                    "Name: " + p.name +
+                    "\nDOB: " + p.DOB +
+                    "\nDOD: " + (p.DOD.isEmpty() ? "Still Alive" : p.DOD) +
+                    "\nAge: " + p.age;
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        info,
+                        "Person Information",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+                return;
+            }
+        }
+    }
+
+    // Drawing
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -111,13 +159,11 @@ public class familytreeviewer extends JPanel {
         g2.setStroke(new BasicStroke(2));
         g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
 
-        // Draw faint grid
         drawGrid(g2);
 
-        // Apply panning offset (translate)
         g2.translate(getWidth() / 2 + offsetX, getHeight() / 2 + offsetY);
 
-        // Draw connecting lines
+        // connecting lines
         for (PersonNode child : nodes) {
             for (PersonNode parent : child.parents) {
                 g2.setColor(Color.GRAY);
@@ -125,7 +171,7 @@ public class familytreeviewer extends JPanel {
             }
         }
 
-        // Draw person boxes
+        // draw boxes
         for (PersonNode p : nodes) {
             g2.setColor(new Color(255, 230, 180));
             g2.fillRect(p.x, p.y, 80, 40);
