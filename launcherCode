@@ -8,7 +8,7 @@ public class launcher {
             JFrame frame = new JFrame("Family Tree Viewer");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            // Add our custom drawing panel
+            // Add custom drawing panel
             frame.add(new familytreeviewer());
 
             frame.pack();
